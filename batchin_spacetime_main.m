@@ -46,48 +46,50 @@ while count>outer_lim
 
 	%Monitor each job, resubmit failures/submit new job
 	while length(varnum_current) == count_limit && count>0
-      vars_to_remove=[];
+           vars_to_remove=[];
 
-		for c=1:length(varnum_current)
-			varnum=varnum_current(c);
-         state=jobs{varnum}.State;
+	   for c=1:length(varnum_current)
+	      varnum=varnum_current(c);
+              state=jobs{varnum}.State;
 
-			if strcmp(state,'finished')
+	      if strcmp(state,'finished')
+	      
 	         %Move on to new variable (in main loop) if successfully processed
 	         count=count-1;
-				vars_to_remove=cat(1,vars_to_remove,varnum);
+		 vars_to_remove=cat(1,vars_to_remove,varnum);
 
-			elseif strcmp(state,'failed')
-				jobs{varnum}
-				%Resubmit the same variable if the job failed
-				[jobs{varnum},files{varnum}]=submit_batch_job(varnum,file_structure,file,experiment,maindir,processvars{varnum},flux_var_switchover);
- 			end
-		end
+	      elseif strcmp(state,'failed')
+	      
+		 jobs{varnum}
+		 %Resubmit the same variable if the job failed
+		 [jobs{varnum},files{varnum}]=submit_batch_job(varnum,file_structure,file,experiment,maindir,processvars{varnum},flux_var_switchover);
+ 	      end
+	   end
 
-		%Remove variables if successfully processed
-		if ~isempty(vars_to_remove)
-			for i=1:length(vars_to_remove)
-				varnum_current=remove_var_from_jobs(varnum_current,vars_to_remove(i));
-			end
-		end
+           %Remove variables if successfully processed
+	   if ~isempty(vars_to_remove)
+	      for i=1:length(vars_to_remove)
+	         varnum_current=remove_var_from_jobs(varnum_current,vars_to_remove(i));
+	      end
+	   end
 
-		%Adjust maximum number of jobs once there are no new vars to process
-		if varsleft==0
-			count_limit=length(varnum_current);
-		end
+	   %Adjust maximum number of jobs once there are no new vars to process
+	   if varsleft==0
+	      count_limit=length(varnum_current);
+	   end
 	end
 
 	%Only submit a new variable if theres a var left to process 
 	if varsleft>0
 
-		%Unique identifier for each job
-		varnum=get_var_num(varsleft,varstotal);
+	   %Unique identifier for each job
+	   varnum=get_var_num(varsleft,varstotal);
 		
-      [jobs{varnum},files{varnum}]=submit_batch_job(varnum,file_structure,file,experiment,maindir,processvars{varnum},flux_var_switchover);
-		varnum_current=add_var_to_jobs(varnum_current,varnum);
+           [jobs{varnum},files{varnum}]=submit_batch_job(varnum,file_structure,file,experiment,maindir,processvars{varnum},flux_var_switchover);
+	   varnum_current=add_var_to_jobs(varnum_current,varnum);
 	
-		count=count+1;
-		varsleft=varsleft-1;
+	   count=count+1;
+	   varsleft=varsleft-1;
  
 	end
 
@@ -117,15 +119,15 @@ function [j,input_file]=submit_batch_job(varnum,file_structure,file,experiment,m
 worker_input=struct;
 worker_input.experiment=experiment;
 if varnum>flux_var_switchover
-	worker_input.copy_var=1;
-	worker_input.var1=var;
-	worker_input.var2=var;
-	worker_input.file=[strrep(file,'.nc',''),'.',var,'.nc'];
+   worker_input.copy_var=1;
+   worker_input.var1=var;
+   worker_input.var2=var;
+   worker_input.file=[strrep(file,'.nc',''),'.',var,'.nc'];
 else
-	worker_input.copy_var=0;
-	worker_input.var2=var;
-	worker_input.var1='OMEGA';
-	worker_input.file=[strrep(file,'.nc',''),'.',var,'OMEGA.nc'];
+   worker_input.copy_var=0;
+   worker_input.var2=var;
+   worker_input.var1='OMEGA';
+   worker_input.file=[strrep(file,'.nc',''),'.',var,'OMEGA.nc'];
 end
 worker_input.file
 
@@ -170,13 +172,11 @@ function varnum=get_var_num(varsleft,varstotal)
 	varnum=varstotal-varsleft+1;
 end
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Add varnum to currently running jobs
 function varnum_current=add_var_to_jobs(varnum_current,varnum)
 	varnum_current=cat(1,varnum_current,varnum);
 end
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Remove varnum from currently running jobs
@@ -184,4 +184,3 @@ function varnum_current=remove_var_from_jobs(varnum_current,varnum)
 	ind=find(varnum_current==varnum,1,'first');
 	varnum_current(ind)=[];
 end
-
