@@ -15,21 +15,19 @@ f_axis2 = c_axis2.*(k_axis2/r_cos1)/(2*pi)*DAY;
 K_e_new=griddata(k_axis1,f_axis1,squeeze(K_e)/df,k_axis2,double(f_axis2)).*(k_axis2/r_cos1);
 K_w_new=griddata(k_axis1,f_axis1,squeeze(K_w)/df,k_axis2,double(f_axis2)).*(k_axis2/r_cos1);
 
-
 for k=1:nk
-for cc=1:nc
-  dc=df*r_cos1/wavenum(k); % unresolved waves
-  if(c(cc)<dc)
-    K_e_new(cc,k)=nan;
-    K_w_new(cc,k)=nan;
-  else
-    if(isnan(K_e_new(cc,k)))
-      K_e_new(cc,k)=0;
-    end
-    if(isnan(K_w_new(cc,k)))
-      K_w_new(cc,k)=0;
-    end
-  end  
+   for cc=1:nc
+      dc=df*r_cos1/wavenum(k); % unresolved waves
+      if(c(cc)<dc)
+         K_e_new(cc,k)=nan;
+         K_w_new(cc,k)=nan;
+      else
+         if(isnan(K_e_new(cc,k)))
+            K_e_new(cc,k)=0;
+         end
+         if(isnan(K_w_new(cc,k)))
+            K_w_new(cc,k)=0;
+         end
+      end  
+   end
 end
-end
-return
