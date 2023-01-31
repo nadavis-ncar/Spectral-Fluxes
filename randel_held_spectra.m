@@ -1,5 +1,9 @@
 function [C WAVENUM LAT RH_SPECTRA] = randel_held_spectra(X,Y,LAT,NumberDays,Windowing,time_res,varargin)
 
+%This function, and all associated sub-functions, were given to me by Elizabeth Barnes
+%as part of the Objective Analysis course at Colorado State University. They have been adapted
+%to operate on non-cyclic grids (with windowing), parallelized, etc.
+
 if nargin>6
    lon_fraction=varargin{1};
 else
@@ -15,6 +19,7 @@ WAVENUM=[0:size(EAST3,2)-1];
 EAST3_c(:,:,:) = nan(length(LAT),length(C),length(WAVENUM));
 WEST3_c(:,:,:) = nan(length(LAT),length(C),length(WAVENUM));
 
+%Parallelize the spectral analysis
 parfor ilat = 1:length(LAT)
 
     if(abs(LAT(ilat))==90)
